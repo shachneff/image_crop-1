@@ -291,7 +291,7 @@ class CropState extends State<Crop> with TickerProviderStateMixin, Drag {
       _maxAreaWidthMap[aspectRatio] = width;
     }
 
-    return Rect.fromLTWH((1.0 - width) / 2, (1.0 - height) / 2, width, height);
+    return Rect.fromLTWH((1.2 - width) / 2, (1- height) / 2, width*0.8, height);
   }
 
   void _updateImage(ImageInfo imageInfo, bool synchronousCall) {
