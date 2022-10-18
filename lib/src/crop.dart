@@ -11,6 +11,7 @@ const _kCropHandleHitSize = 48.0;
 const _kCropMinFraction = 0.1;
 
 enum _CropAction { none, moving, cropping, scaling }
+
 enum _CropHandleSide { none, topLeft, topRight, bottomLeft, bottomRight }
 
 class Crop extends StatefulWidget {
@@ -87,8 +88,8 @@ class CropState extends State<Crop> with TickerProviderStateMixin, Drag {
   Rect? get area => _view.isEmpty
       ? null
       : Rect.fromLTWH(
-          _area.left * _view.width / _scale - _view.left,
-          _area.top * _view.height / _scale - _view.top,
+          max(_area.left * _view.width / _scale - _view.left, 0),
+          max(_area.top * _view.height / _scale - _view.top, 0),
           _area.width * _view.width / _scale,
           _area.height * _view.height / _scale,
         );
@@ -290,8 +291,8 @@ class CropState extends State<Crop> with TickerProviderStateMixin, Drag {
     if (aspectRatio != null) {
       _maxAreaWidthMap[aspectRatio] = width;
     }
-
-    return Rect.fromLTWH((1.2 - width) / 2, (1- height) / 2, width*0.8, height);
+    return Rect.fromLTWH(
+        (1 - width * 0.8) / 2, (1 - height * 0.8) / 2, width * 0.8, height * 0.8);
   }
 
   void _updateImage(ImageInfo imageInfo, bool synchronousCall) {
@@ -311,8 +312,8 @@ class CropState extends State<Crop> with TickerProviderStateMixin, Drag {
           boundaries.height / image.height,
         );
 
-        final viewWidth = boundaries.width / (image.width * _scale * _ratio);
-        final viewHeight = boundaries.height / (image.height * _scale * _ratio);
+        final viewWidth = boundaries.width / (image.width * _ratio);
+        final viewHeight = boundaries.height / (image.height * _ratio);
         _area = _calculateDefaultArea(
           viewWidth: viewWidth,
           viewHeight: viewHeight,
@@ -320,11 +321,12 @@ class CropState extends State<Crop> with TickerProviderStateMixin, Drag {
           imageHeight: image.height,
         );
         _view = Rect.fromLTWH(
-          (viewWidth - 1.0) / 2,
-          (viewHeight - 1.0) / 2,
+          (viewWidth / _scale - 1.0) / 2,
+          (viewHeight / _scale - 1.0) / 2,
           viewWidth,
           viewHeight,
         );
+        _handleScaleEnd(ScaleEndDetails());
       });
     });
 
@@ -393,21 +395,21 @@ class CropState extends State<Crop> with TickerProviderStateMixin, Drag {
     _startView = _view;
   }
 
-  Rect _getViewInBoundaries(double scale) =>
+  Rect _getViewInBoundaries(double targetScale) =>
       Offset(
         max(
           min(
             _view.left,
-            _area.left * _view.width / scale,
+            _area.left * _view.width / targetScale,
           ),
-          _area.right * _view.width / scale - 1.0,
+          _area.right * _view.width / targetScale - 1.0,
         ),
         max(
           min(
             _view.top,
-            _area.top * _view.height / scale,
+            _area.top * _view.height / targetScale,
           ),
-          _area.bottom * _view.height / scale - 1.0,
+          _area.bottom * _view.height / targetScale - 1.0,
         ),
       ) &
       _view.size;
@@ -444,6 +446,29 @@ class CropState extends State<Crop> with TickerProviderStateMixin, Drag {
       begin: _view,
       end: _getViewInBoundaries(targetScale),
     );
+    print('_viewTween: $_viewTween');
+    print('_viewTween.begin: $_view');
+    print('_viewTween.end: ${_getViewInBoundaries(targetScale)}');
+    print('_area: $_area');
+    print('_scaleTween: $_scaleTween');
+    print('viewSize: ${_view.size}');
+    final tempOffset = Offset(
+      max(
+        min(
+          _view.left,
+          _area.left * _view.width / targetScale,
+        ),
+        _area.right * _view.width / targetScale - 1.0,
+      ),
+      max(
+        min(
+          _view.top,
+          _area.top * _view.height / targetScale,
+        ),
+        _area.bottom * _view.height / targetScale - 1.0,
+      ),
+    );
+    print('offset: $tempOffset');
 
     _settleController.value = 0.0;
     _settleController.animateTo(
