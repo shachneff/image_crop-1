@@ -24,7 +24,7 @@ class Crop extends StatefulWidget {
   const Crop({
     Key? key,
     required this.image,
-    this.aspectRatio,
+    this.aspectRatio = 3/4,
     this.maximumScale = 2.0,
     this.alwaysShowGrid = false,
     this.onImageError,
@@ -33,8 +33,8 @@ class Crop extends StatefulWidget {
   Crop.file(
     File file, {
     Key? key,
-    double scale = 1.0,
-    this.aspectRatio,
+    double scale,
+    this.aspectRatio = 3/4,
     this.maximumScale = 2.0,
     this.alwaysShowGrid = false,
     this.onImageError,
@@ -46,7 +46,7 @@ class Crop extends StatefulWidget {
     Key? key,
     AssetBundle? bundle,
     String? package,
-    this.aspectRatio,
+    this.aspectRatio = 3/4,
     this.maximumScale = 2.0,
     this.alwaysShowGrid = false,
     this.onImageError,
@@ -292,12 +292,12 @@ class CropState extends State<Crop> with TickerProviderStateMixin, Drag {
       _maxAreaWidthMap[aspectRatio] = width;
     }
     return Rect.fromLTWH(
-        (1 - width * 0.8) / 2, (1 - height * 0.8) / 2, width * 0.8, height * 0.8);
+        (1 - width * 0.9) / 2, (1 - height * 0.9) / 2, width * 0.9, height * 0.9);
   }
 
   void _updateImage(ImageInfo imageInfo, bool synchronousCall) {
     final boundaries = _boundaries;
-    if (boundaries == null) {
+    if (boundaries == null) {   
       return;
     }
 
