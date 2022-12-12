@@ -33,7 +33,7 @@ class Crop extends StatefulWidget {
   Crop.file(
     File file, {
     Key? key,
-    double scale,
+    double scale = 0.5,
     this.aspectRatio = 3/4,
     this.maximumScale = 2.0,
     this.alwaysShowGrid = false,
